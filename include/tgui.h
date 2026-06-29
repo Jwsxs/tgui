@@ -17,7 +17,7 @@ typedef enum TGUI_FLAG {
 	TGUI_FLAG_NONE,
 } TGUI_FLAG;
 
-uint8_t tguiInit(TGUI_FLAG flag);
+int tguiInit(TGUI_FLAG flag);
 
 // ===
 
@@ -25,6 +25,12 @@ uint8_t tguiInit(TGUI_FLAG flag);
 // X => BACKGROUND OR TEXT
 // Y => REGULAR OR BOLD ( no high intensity )
 // C => COLOR
+
+#define TGUI_PIXEL_COLOR_CH_RBLACK "\033[0;90m"
+#define TGUI_PIXEL_COLOR_CH_RRED "\033[0;91m"
+
+#define TGUI_PIXEL_COLOR_CH_BBLACK "\033[1;90m"
+#define TGUI_PIXEL_COLOR_CH_BRED "\033[1;91m"
 
 #define TGUI_PIXEL_COLOR_BG_RBLACK "\033[0;40m"
 #define TGUI_PIXEL_COLOR_BG_RRED "\033[0;41m"
@@ -38,10 +44,9 @@ uint8_t tguiInit(TGUI_FLAG flag);
 #define TGUI_PIXEL_COLOR_BG_BBLUE "\033[0;104m"
 #define TGUI_PIXEL_COLOR_BG_BWHITE "\033[0;107m"
 
-#define TGUI_WIN_COLOR_CLEAR "\033[0m"
+#define TGUI_PIXEL_RESET_COLOR "\033[0m"
 
 typedef const char* TGUI_PIXEL_COLOR;
-extern TGUI_PIXEL_COLOR TGUI_WIN_INITIAL_COLOR;
 
 typedef struct TGUI_PIXEL {
 	uint8_t x;
@@ -56,24 +61,50 @@ typedef struct TGUI_PIXEL_ARRAY {
 } TGUI_PIXEL_ARRAY;
 
 typedef struct TGUI_WIN {
-	uint8_t width;
-	uint8_t height;
+	int width;
+	int height;
 	TGUI_PIXEL_ARRAY* pxa;
 } TGUI_WIN;
 
 typedef enum TGUI_WIN_FLAG {
 	TGUI_WIN_BLANK,
-	//TGUI_WIN_COLORED,
+	TGUI_WIN_FILLED,
 } TGUI_WIN_FLAG;
 
-TGUI_WIN* tguiCreateWindow(uint8_t width, uint8_t height, TGUI_WIN_FLAG flag);
+TGUI_WIN* tguiCreateWindow(int width, int height, TGUI_WIN_FLAG flag);
 
-static void tguiFillPixelArray(TGUI_PIXEL_ARRAY** pxa, char c);
+static void tguiFillPixelArray(TGUI_WIN* win, char c);
+
+// ===
+
+typedef enum TGUI_ATTR {
+	TGUI_ATTR_CLEAR_COLOR,
+
+	TGUI_ATTR_PXA_COLOR,
+	TGUI_ATTR_PXA_FILL_CHAR,
+
+	TGUI_ATTR_WIN_HAS_BORDER,
+} TGUI_ATTR;
+
+typedef struct TGUI_CONFIG {
+	TGUI_PIXEL_COLOR clear_color;
+	
+	TGUI_PIXEL_COLOR color;
+	
+	char fill_char;
+
+	int has_border;
+} TGUI_CONFIG;
+
+#define _GEN_TYPE X
+#define _GEN_VALUE Y
+
+void tguiSetAttr(TGUI_ATTR attr, ...);
 
 // ===
 
 int tguiRender(TGUI_WIN* win);
 
-void tguiClear();
+void tguiClear(); // clear whole window, terminal itself
 
 #endif
