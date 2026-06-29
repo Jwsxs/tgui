@@ -3,6 +3,7 @@
 
 #include "../include/tgui.h"
 
+static TGUI_CONFIG GLOBAL_CONF;
 static TGUI_CONFIG config;
 
 int tguiInit(TGUI_FLAG flag) {
@@ -27,6 +28,8 @@ TGUI_WIN* tguiCreateWindow(int width, int height, TGUI_WIN_FLAG flag) {
 	pxa->px = px;
 	pxa->size = width * height;
 
+	win->config = config;
+
 	switch (flag) {
 		default:
 		case TGUI_WIN_BLANK:
@@ -46,13 +49,13 @@ static void tguiFillPixelArray(TGUI_WIN* win, char c) {
 
 		}
 		win->pxa->px[i].c = c;
-		win->pxa->px[i].color = config.color;
+		win->pxa->px[i].color = win->config.color;
 	}
 }
 
 // ===
 
-void tguiSetAttr(TGUI_ATTR attr, ...) {
+void tguiSetWinAttr(TGUI_ATTR attr, ...) {
 	va_list args;
 	va_start(args, attr);
 
@@ -93,5 +96,5 @@ int tguiRender(TGUI_WIN* win) {
 }
 
 void tguiClear() {
-	printf("%s\033[2J\033[1H", config.clear_color); // framebuffer size supports current a fixed size
+	printf("%s\033[2J\033[1H", GLOBAL_CONF.clear_color); // framebuffer size supports current a fixed size
 }

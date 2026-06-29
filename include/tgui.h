@@ -60,23 +60,6 @@ typedef struct TGUI_PIXEL_ARRAY {
 	TGUI_PIXEL* px;
 } TGUI_PIXEL_ARRAY;
 
-typedef struct TGUI_WIN {
-	int width;
-	int height;
-	TGUI_PIXEL_ARRAY* pxa;
-} TGUI_WIN;
-
-typedef enum TGUI_WIN_FLAG {
-	TGUI_WIN_BLANK,
-	TGUI_WIN_FILLED,
-} TGUI_WIN_FLAG;
-
-TGUI_WIN* tguiCreateWindow(int width, int height, TGUI_WIN_FLAG flag);
-
-static void tguiFillPixelArray(TGUI_WIN* win, char c);
-
-// ===
-
 typedef enum TGUI_ATTR {
 	TGUI_ATTR_CLEAR_COLOR,
 
@@ -99,7 +82,28 @@ typedef struct TGUI_CONFIG {
 #define _GEN_TYPE X
 #define _GEN_VALUE Y
 
-void tguiSetAttr(TGUI_ATTR attr, ...);
+
+// ===
+
+typedef struct TGUI_WIN {
+	int width;
+	int height;
+	TGUI_PIXEL_ARRAY* pxa;
+	TGUI_CONFIG config;
+} TGUI_WIN;
+
+typedef enum TGUI_WIN_FLAG {
+	TGUI_WIN_BLANK,
+	TGUI_WIN_FILLED,
+} TGUI_WIN_FLAG;
+
+TGUI_WIN* tguiCreateWindow(int width, int height, TGUI_WIN_FLAG flag);
+
+static void tguiFillPixelArray(TGUI_WIN* win, char c);
+
+// ===
+
+void tguiSetWinAttr(TGUI_ATTR attr, ...);
 
 // ===
 
