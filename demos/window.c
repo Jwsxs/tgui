@@ -38,7 +38,9 @@ int main() {
 		// 3. FPS set | usleep() for better visualization
 		usleep(200000);
 	}
-
+	
+	// You have to destroy the window before quitting TGUI
+	// In this case, destroying only win1 since we're still coding
 	tguiWinDestroy(win1);
 
 	tguiSetWinAttr(TGUI_ATTR_PXA_FILL_CHAR, 'O');
@@ -64,5 +66,8 @@ int main() {
 
 	// 4. At end, clear screen and destroy (free()) everything
 	tguiClear();
+	tguiWinDestroy(win2);
+	tguiWinDestroy(win3);
+	tguiQuit();
 	return 1;
 }
