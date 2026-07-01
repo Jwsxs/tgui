@@ -41,7 +41,7 @@ void* tguiInit(TGUI_FLAG flag) {
 			return &ws;
 			break;
 		// In case passing, for example, any TGUI_FLAG that can change our terminal info
-		// TODO: setTermSize() with TIOCSWINSZ, notice the S there
+		// TODO: setTermSize() with TIOCSWIN
 	}
 }
 
@@ -219,10 +219,13 @@ int tguiQuit() {
 
 // === RENDER
 
-// TODO: Probably needed of a custom made cursor movement
+// HACK: Probably need of a custom made cursor movement
 int tguiRender(TGUI_WIN* win) {
 	// Basically all we need is a formated buffer and therefore a pointer to it
-	int bufsz = win->width * win->height + 1; // Must be +1 when sent to snprintf();
+	int char_bufsz = win->width * win->height; // Must be +1 when sent to snprintf();
+	int ansi_bufsz = char_bufsz * 9; // 9 => Max ANSII String Size => \e[0;107m for example, has 9 chars
+	int bufsz = char_bufsz + ansi_bufsz + 1; // At the end, just append '\0', since buffer has to be detected as a string
+						 // For later on fputs(buffer, stdout);
 
 	// Buffer size must be sizeof(char) * bufsz + size of
 	char* buffer = malloc(sizeof(char) * bufsz); // bo tá sendo aqui no tamanho
@@ -230,17 +233,19 @@ int tguiRender(TGUI_WIN* win) {
 	int fb = 0;
 
 	int i = 0;
-	// TODO: Improve performance by writing to a single buffer and print it out later on
+
+	// DONE: Improve performance by writing to a single buffer and print it out later on
+	// NOTE: Probably faster, in need to make any fps counter haha
 	for (int h = 0; h < win->height; h++) {
-		fb += snprintf(buffer + fb, bufsz - fb, "\033[%d;%dH", win->y + h, win->x); // change cursor position | same as setting x and y
+		fb += snprintf(buffer + fb, bufsz - fb, "\e[%d;%dH", win->y + h, win->x); // change cursor position | same as setting x and y
 		for (int w = 0; w < win->width; w++) {
 			// check if win->config.is_opaque == 0 and if win->pxa->px[i] isn't inside any entity / widget
 			// if not, just move cursor pos to +1
-			if (win->cfg.is_opaque != 0 && fb <= bufsz - 1) {
+			if (win->cfg.is_opaque != 0) {
 				//printf("\033[%d;%dH", c_pos[0] + 1, c_pos[1]);
 				fb += snprintf(buffer + fb, bufsz - fb, "%s%c", win->pxa->px[i].color, win->pxa->px[i].c);
 			} else {
-				fb += snprintf(buffer + fb, bufsz - fb, "%s", "\033[1C");
+				fb += snprintf(buffer + fb, bufsz - fb, "%s", "\e[1C");
 			}
 
 			i++;
